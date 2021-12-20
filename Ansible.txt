@@ -1,0 +1,86 @@
+1) vi test.yml
+ 
+- hosts: all
+  serial: 1        ----> serial 1 means after execute one server then go to second one
+  become: yes
+  vars:
+    pack: httpd
+  tasks:
+    - name: Install Package
+      package:
+        name: "{{ pack }}"
+        state: present
+      tags: Install
+    - name: Uninstall Package
+      package:
+        name: "{{ pack }}"
+        state: absent
+      ignore_errors: true     ----> If any error happen it ignore continue the ececution.
+      tags: Uninstall
+
+=====================================================================
+
+
+
+2)  In Playbook Install and Uninstall Package
+----------------------------------------
+vi  var.yml
+
+- hosts: all
+  become: yes
+  vars:
+    pack: httpd       ---->  ( here we directly give the variable) Means here locally assign variabe
+  tasks:
+    - name: Install Package
+      package:
+        name: "{{ pack }}"
+        state: present
+      tags: Install
+    - name: Uninstall Package
+      package:
+        name: "{{ pack }}"
+        state: absent
+      tags: Uninstall
+============================================================================
+
+3) Insatall Package using variable file :
+-----------------
+vi  var-files.yml 
+
+- hosts: all
+  become: yes
+  vars_files:
+    - vars1.yml        ---->  (Here var01.yml is file name ,this file contains we give the name of variable) Assign variable through file
+  tasks:
+    - name: install package and name is "{{ packname }}"
+      package:
+        name: "{{ packname }}"
+        state: installed
+===================================================
+
+In file we give the variable
+---------------------
+
+vi vars1.yml
+
+packname : httpd
+
+======================================================
+
+4) vi vars_prompt.yml  ----> It ask the package after execution
+
+- hosts: all
+  become: yes
+  vars_prompt:
+     - name: packname
+       prompt: "Enter the package name "
+       private: no      ----> It tells when we entered package it will display or # private: no now this is comment , if you enter package name httpd it will not display
+  tasks:
+    - name : "Install {{ packname }} package"
+      package:
+        name: "{{packname}}"
+        state: installed
+
+----------------------------
+private: no      ----> It tells when we entered package it will display or
+# private: no now this is comment , if you enter package name httpd it will not display
